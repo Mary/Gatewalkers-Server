@@ -89,11 +89,10 @@ const { updatedNewsletter }= req.body;
         err.status = 400;
         return next(err);
     }
-// const updatedNewsletter = { author, title, date, intro, underwraps, qaTitle, qaContent, communitySpotlightFeature, communitySpotlightContent, fieldTitle, fieldContent }
 
-    Newsletter.findOneAndUpdate({ _id: id }, updatedNewsletter)
-        .then(() => {
-            res.sendStatus(204);
+    Newsletter.findOneAndUpdate({ _id: id }, updatedNewsletter, {new: true})
+    .then(newsletter => {
+        res.status(200).json(newsletter);
         })
         .catch(err => {
             next(err);
