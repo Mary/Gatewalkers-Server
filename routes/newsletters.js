@@ -35,14 +35,31 @@ router.get('/news', (req, res, next) => {
         });
 });
 
+//////// Delete Newsletter
+router.delete('/delete/:id', jwtAuth, (req, res, next) => {
+    const { id } = req.params;
 
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+        const err = new Error('The `id` is not valid');
+        err.status = 400;
+        return next(err);
+    }
+
+    Newsletter.findOneAndRemove({ _id: id })
+        .then(() => {
+            res.sendStatus(204);
+        })
+        .catch(err => {
+            next(err);
+        });
+});
 
 ////////////// Create Newsletter
 router.post('/newsletters', [jwtAuth, jsonParser], (req, res, next) => {
-    const {author, title, date, intro, underwraps, qaTitle, qaContent, communitySpotlightFeature, communitySpotlightContent, fieldTitle, fieldContent} = req.body;
+    const { author, title, date, intro, underwraps, qaTitle, qaContent, communitySpotlightFeature, communitySpotlightContent, fieldTitle, fieldContent } = req.body;
     const user_Id = req.user.id;
 
-    if (!author || !title || !date || !intro || !underwraps || !qaTitle || !qaContent || !communitySpotlightContent || !communitySpotlightFeature ) {
+    if (!author || !title || !date || !intro || !underwraps || !qaTitle || !qaContent || !communitySpotlightContent || !communitySpotlightFeature) {
         const err = new Error('Missing 1 or more `required field(s)` in request body');
         err.status = 400;
         return next(err);
@@ -60,17 +77,21 @@ router.post('/newsletters', [jwtAuth, jsonParser], (req, res, next) => {
 });
 
 
-//////// Delete Newsletter
-router.delete('/delete/:id', jwtAuth, (req, res, next) => {
+
+
+/////// Update Newsletter
+router.put('/update/:id', [jwtAuth, jsonParser], (req, res, next) => {
     const { id } = req.params;
+const { updatedNewsletter }= req.body;
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
         const err = new Error('The `id` is not valid');
         err.status = 400;
         return next(err);
     }
+// const updatedNewsletter = { author, title, date, intro, underwraps, qaTitle, qaContent, communitySpotlightFeature, communitySpotlightContent, fieldTitle, fieldContent }
 
-    Newsletter.findOneAndRemove({ _id: id})
+    Newsletter.findOneAndUpdate({ _id: id }, updatedNewsletter)
         .then(() => {
             res.sendStatus(204);
         })
@@ -79,4 +100,6 @@ router.delete('/delete/:id', jwtAuth, (req, res, next) => {
         });
 });
 
-module.exports = router;
+    module.exports = router;
+
+
